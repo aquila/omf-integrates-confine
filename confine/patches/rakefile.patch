@@ -1,0 +1,48 @@
+--- ../../Rakefile	2013-02-12 11:02:44.610646517 +0100
++++ ../../../Rakefile	2013-02-12 12:17:50.314831492 +0100
+@@ -42,13 +42,44 @@
+     File.symlink("#{ROOT}/omf-aggmgr/sbin/omf_create_psnode", symlink) and puts symlink unless File.symlink?(symlink)
+   end
+ 
++  desc 'Install CONFINE components in OMF environment.'
++  task :install_confine do
++    # Experiment Controller
++    symlink = "#{ROOT}/omf-expctl/ruby/omf-expctl/confine"
++    File.symlink("#{ROOT}/confine/omf-expctl/omf-expctl/confine", symlink) and puts symlink unless File.symlink?(symlink)
++
++    symlink = "#{ROOT}/omf-expctl/ruby/omf-expctl/confine.rb"
++    File.symlink("#{ROOT}/confine/omf-expctl/omf-expctl/confine.rb", symlink) and puts symlink unless File.symlink?(symlink)
++
++    symlink = "#{ROOT}/omf-expctl/share/repository/confine"
++    File.symlink("#{ROOT}/confine/omf-expctl/repository/confine", symlink) and puts symlink unless File.symlink?(symlink)
++
++    # Aggregate Manager
++    symlink = "#{ROOT}/omf-aggmgr/ruby/omf-aggmgr/ogs_confine"
++    File.symlink("#{ROOT}/confine/omf-aggmgr/ogs_confine", symlink) and puts symlink unless File.symlink?(symlink)
++  end
++
++  desc 'Remove CONFINE components from OMF environment.'
++  task :remove_confine do
++    [
++      # Experiment Controller
++      "#{ROOT}/omf-expctl/ruby/omf-expctl/confine",
++      "#{ROOT}/omf-expctl/ruby/omf-expctl/confine.rb",
++      "#{ROOT}/omf-expctl/share/repository/confine",
++      # Aggregate Manager
++      "#{ROOT}/omf-aggmgr/ruby/omf-aggmgr/ogs_confine",
++    ].each do |s|
++      File.unlink(s) if File.symlink?(s)
++    end
++  end
++
+   desc 'Remove OMF components from local development environment.'
+   task :remove do
+     [
+       "/usr/share/omf-common-#{OMF_VERSION}",
+       "/etc/omf-expctl-#{OMF_VERSION}",
+       "/usr/share/omf-expctl-#{OMF_VERSION}/repository",
+-      "/usr/share/omf_expctl-#{OMF_VERSION}",
++      "/usr/share/omf-expctl-#{OMF_VERSION}",
+       "/usr/bin/omf-#{OMF_VERSION}",
+       "/etc/omf-aggmgr-#{OMF_VERSION}",
+       "/usr/share/omf-aggmgr-#{OMF_VERSION}",

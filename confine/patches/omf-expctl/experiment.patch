@@ -1,0 +1,70 @@
+--- ../../../omf-expctl/ruby/omf-expctl/experiment.rb	2013-02-12 10:42:01.490595483 +0100
++++ ../../../../expctl/omf-expctl-5.4/omf-expctl/experiment.rb	2013-02-11 22:24:05.062794500 +0100
+@@ -30,6 +30,9 @@
+ # is primarily used as a singleton
+ #
+ 
++# ACCOMADATE CONFINE
++require 'omf-expctl/confine'
++
+ require 'omf-common/mobject'
+ require 'omf-expctl/traceState'
+ require 'optparse'
+@@ -52,6 +55,9 @@
+   @@domain = nil
+   @@is_running = false
+ 
++  # ACCOMADATE CONFINE
++  @@preparing = false
++
+   attr_reader :domain
+ 
+   #
+@@ -97,6 +103,7 @@
+   # - uri =  URI of the experiment to load
+   #
+   def Experiment.load(uri)
++    puts "Entered Experiment.load method! #{uri}"
+     MObject.info("Experiment", "load ", uri)
+     TraceState.experiment(:load, uri)
+     obj, type = OConfig.load(uri, true)
+@@ -110,6 +117,16 @@
+     end
+   end
+ 
++  # ACCOMADATE CONFINE
++  def Experiment.prepare!	
++	  @@preparing = true
++  end
++
++  # ACCOMADATE CONFINE
++  def Experiment.prepare?
++  	@@preparing
++  end
++
+   #
+   # Set the array of command line arguments to
+   # overide the default experiment variables 
+@@ -205,7 +222,8 @@
+   def Experiment.defProperty(name, defaultValue, description)
+     if (override = @@expPropsOverride[name]) != nil
+       MObject.debug('Experiment', 'Setting property "', name, '" to "', override.inspect, '".')
+-      defaultValue = override
++      	puts "Hier wordt #{defaultValue} overschreven door #{override}"
++	defaultValue = override
+     end
+     ExperimentProperty.create(name, defaultValue, description)
+   end
+@@ -267,6 +285,12 @@
+   # Start the Experiment
+   #
+   def Experiment.start
++   
++   # ACCOMADATE CONFINE
++   if Experiment.prepare?
++	return
++   end	    
++
+     @@is_running = true
+     TraceState.experiment(:id, @@expID)
+ 

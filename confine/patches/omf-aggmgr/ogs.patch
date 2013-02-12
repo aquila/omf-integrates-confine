@@ -1,0 +1,18 @@
+--- ../../../omf-aggmgr/ruby/omf-aggmgr/ogs.rb	2013-02-12 09:13:50.013378250 +0100
++++ ../../../../aggmgr/omf-aggmgr-5.4/omf-aggmgr/ogs.rb	2013-02-11 22:22:46.424792910 +0100
+@@ -89,10 +89,15 @@
+   configFile = "#{findServiceDir}/#{configFileName}"
+   MObject.debug(:gridservices, "Loading service config file '#{configFile}'")
+   if (File.readable?(configFile))
++
++    puts ">>>>> CONFIGFILE : #{configFile}"
++
+     f = File.open(configFile)
+     params = YAML::parse(f).transform
+     f.close
+ 
++    puts ">>>>> PARAMS : #{params}"
++
+     if (cfg = params[name]).nil?
+       raise "Missing configuration for service '#{name}'"
+     end
