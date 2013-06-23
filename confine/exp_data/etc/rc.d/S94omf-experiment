@@ -1,0 +1,13 @@
+#!/bin/sh /etc/rc.common
+#
+# omf-resctl init script to start omf-resctl daemon
+#
+
+START=94
+
+start() {
+	cmdwlan0="ip addr add 10.0.0.44/8 dev wlan0"
+eval $cmdwlan0
+
+}
+
