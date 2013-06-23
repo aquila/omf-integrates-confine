@@ -85,11 +85,10 @@ def register(service,configFileName)
   serviceClass = Class::class_eval("#{service}")
   name = serviceClass.serviceName
   path = "/#{name}"
-
+c
   configFile = "#{findServiceDir}/#{configFileName}"
   MObject.debug(:gridservices, "Loading service config file '#{configFile}'")
   if (File.readable?(configFile))
-
     f = File.open(configFile)
     params = YAML::parse(f).transform
     f.close

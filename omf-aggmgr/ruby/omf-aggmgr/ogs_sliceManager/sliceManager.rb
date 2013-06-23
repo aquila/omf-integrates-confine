@@ -44,7 +44,7 @@ require 'omf-common/omfVersion'
 ROOT = "OMF_#{OMF::Common::MM_VERSION()}"
 
 DataMapper::Logger.new($stdout, :debug)
-DataMapper.setup(:default, 'mysql://localhost/dmtest')
+DataMapper.setup(:default, 'mysql://openfire:openfire@localhost/openfire')
 
 class Slice
   include DataMapper::Resource
@@ -67,6 +67,35 @@ class SliceManagerService < GridService
   name 'sliceManager'
   description 'Create slices and associate resources to them.'
   @@config = nil
+
+  def self.testingFunction(sliceName, resources, pubsub_domain)
+	puts "TEESTING TESTING TESTING TESTING TESTING TESTING"
+	# For each resource, create /OMF_x.x/<sliceName>/resources/<hrn>,
+    # where <hrn> is the human readable name of the resource.
+    MObject.debug "associateResourcesToSlice"
+    if pubsub_domain.nil?
+      MObject.debug("SliceManager", "parameter pubsub_domain is empty")
+    end
+    if sliceName.nil?
+      MObject.debug("SliceManager", "parameter sliceName is empty")
+      return false
+    end
+    slice = Slice.first(:name => sliceName);
+    if slice.nil? then
+      MObject.debug("SliceManager","Slice not found #{sliceName}")
+      "Slice not found #{sliceName}"
+    else
+      domain = self.getPubSubDomain(pubsub_domain)
+      resource_list = resources.split(',')
+      resource_list.each do |resource|
+        MObject.debug("SliceManager", "Associate #{resource} --> #{sliceName}")
+        self.create_pubsub_node(domain, self.resource_node(sliceName, resource))
+        Resource.create(:hrn => resource,
+                        :slice => slice)
+      end
+      true
+    end
+  end
 
   #
   # Create a new slice.
@@ -115,6 +144,34 @@ class SliceManagerService < GridService
   s_param :resources, 'resources', 'comma-separated list of resources to associate with the slice'
   s_param :pubsub_domain, 'pubsub_domain', 'the XMPP pubsub domain that hosts "sliceName"'
   service 'associateResourcesToSlice' do |sliceName, resources, pubsub_domain|
+    # For each resource, create /OMF_x.x/<sliceName>/resources/<hrn>,
+    # where <hrn> is the human readable name of the resource.
+    MObject.debug "associateResourcesToSlice"
+    if pubsub_domain.nil?
+      MObject.debug("SliceManager", "parameter pubsub_domain is empty")
+    end
+    if sliceName.nil?
+      MObject.debug("SliceManager", "parameter sliceName is empty")
+      return false
+    end
+    slice = Slice.first(:name => sliceName);
+    if slice.nil? then
+      MObject.debug("SliceManager","Slice not found #{sliceName}")
+      "Slice not found #{sliceName}"
+    else
+      domain = self.getPubSubDomain(pubsub_domain)
+      resource_list = resources.split(',')
+      resource_list.each do |resource|
+        MObject.debug("SliceManager", "Associate #{resource} --> #{sliceName}")
+        self.create_pubsub_node(domain, self.resource_node(sliceName, resource))
+        Resource.create(:hrn => resource,
+                        :slice => slice)
+      end
+      true
+    end
+  end
+
+  def self.allocateResourcesToSliceCONFINE(sliceName, resources, pubsub_domain)
     # For each resource, create /OMF_x.x/<sliceName>/resources/<hrn>,
     # where <hrn> is the human readable name of the resource.
     MObject.debug "associateResourcesToSlice"

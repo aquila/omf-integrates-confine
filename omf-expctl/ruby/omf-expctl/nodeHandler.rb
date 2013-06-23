@@ -369,15 +369,18 @@ class NodeHandler < MObject
     end
     @running = true
 
+	info "Start profiling"
     Profiler__::start_profile if @doProfiling
 
     begin
       require 'omf-expctl/handlerCommands'
+      info "Load defaultLibs"
       if (@defaultLibs)
         @defaultLibs.split(',').each { |f|
           Experiment.load(f)
         }
       end
+      info "Load extraLibs"
       if (@extraLibs)
         @extraLibs.split(',').each { |f|
           Experiment.load(f)
@@ -389,8 +392,11 @@ class NodeHandler < MObject
     Signal.trap('SIGINT') {Experiment.interrupt}
     # Load the Experiment File , if any
     if @@expFile
+      #info "Loading experiment file #{@@expFile}"
       Experiment.load(@@expFile)
+      #info "Starting experiment"
       Experiment.start
+	#info "After experiment"
     end
 
     if interactive?
@@ -627,6 +633,8 @@ class NodeHandler < MObject
       end
       @@expFile = s
     }
+
+    #info "Experiment file::::: #{@@expFile}"
 
     if (@@expFile.nil? && ! (@interactive || @web_ui))
       raise "Missing experiment file"

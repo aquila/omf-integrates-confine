@@ -383,12 +383,12 @@ ALLNODES_QS
   
   def addNode(node)
     qs = "INSERT INTO nodes (#{node.keys.join(',')}) VALUES ('#{node.values.join('\',\'')}');"
-    MObject.debug(qs)
-    return true
+   #MObject.debug(qs)
+   #return true
     begin
       @my.query(qs)
     rescue MysqlError => e
-      err_str = "Inventory - Could not execute query in rmTestbed: '#{qs}'"
+      err_str = "Inventory - Could not execute query in addNode: '#{qs}'"
       p err_str
       MObject.debug err_str
     end
@@ -405,6 +405,48 @@ ALLNODES_QS
       MObject.debug err_str
     end
     return @my.affected_rows > 0
+  end
+
+  def addLocation(location)
+    qs = "INSERT INTO locations (#{location.keys.join(',')}) VALUES ('#{location.values.join('\',\'')}');"
+    begin
+      @my.query(qs)
+    rescue MysqlError => e
+      err_str = "Inventory - Could not execute query in addLocation: '#{qs}'"
+      p err_str
+      MObject.debug err_str
+    end
+    return @my.affected_rows > 0
+  end
+
+  def getTestbedId(testbedName)
+    qs = "SELECT id FROM testbeds WHERE name = '#{testbedName}';"
+    result = Hash.new
+    begin
+      @my.query(qs).each() { | id |
+	   result['id'] = "#{id}"
+	}
+    rescue MysqlError => e
+      err_str = "Inventory - Could not execute query in getTestbedId: '#{qs}'"
+      p err_str
+      MObject.debug err_str
+    end
+    return result
+  end
+
+    def getLocationId(name, x, y, z, testbedId)
+    qs = "SELECT id FROM locations WHERE name = '#{name}' AND x = '#{x}' AND y = '#{y}' AND z = '#{z}' AND testbed_id = '#{testbedId}';"
+    result = Hash.new
+    begin
+        @my.query(qs).each() { | id |
+           result['id'] = "#{id}"
+        }
+    rescue MysqlError => e
+      err_str = "Inventory - Could not execute query in getLocationId: '#{qs}'"
+      p err_str
+      MObject.debug err_str
+    end
+    return result
   end
 
 end

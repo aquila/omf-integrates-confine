@@ -30,6 +30,9 @@
 # is primarily used as a singleton
 #
 
+# ACCOMADATE CONFINE
+require 'omf-expctl/confine'
+
 require 'omf-common/mobject'
 require 'omf-expctl/traceState'
 require 'optparse'
@@ -51,6 +54,9 @@ class Experiment
   @@sliceID = nil # default slice ID will be setup by EC based on its config file  
   @@domain = nil
   @@is_running = false
+
+  # ACCOMADATE CONFINE
+  @@preparing = false
 
   attr_reader :domain
 
@@ -108,6 +114,20 @@ class Experiment
     else
       raise IOError, "Unknown experiment source '#{uri}'."
     end
+  end
+
+  # ACCOMADATE CONFINE
+  def Experiment.prepare!	
+	  @@preparing = true
+  end
+
+  def Experiment.unprepare!
+	@@preparing = false
+  end
+
+  # ACCOMADATE CONFINE
+  def Experiment.prepare?
+  	@@preparing
   end
 
   #
@@ -205,7 +225,7 @@ class Experiment
   def Experiment.defProperty(name, defaultValue, description)
     if (override = @@expPropsOverride[name]) != nil
       MObject.debug('Experiment', 'Setting property "', name, '" to "', override.inspect, '".')
-      defaultValue = override
+	defaultValue = override
     end
     ExperimentProperty.create(name, defaultValue, description)
   end
@@ -267,9 +287,15 @@ class Experiment
   # Start the Experiment
   #
   def Experiment.start
+   
+   # ACCOMADATE CONFINE
+   if Experiment.prepare?
+	return
+   end	    
+
     @@is_running = true
     TraceState.experiment(:id, @@expID)
-
+	
     # If -r flag was set on the command line
     # Reset the nodes before starting the experiment if -r flag was set
     if NodeHandler.NODE_RESET

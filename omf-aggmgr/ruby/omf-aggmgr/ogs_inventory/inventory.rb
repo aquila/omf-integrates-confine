@@ -112,7 +112,7 @@ class InventoryService < GridService
   # [Return] a new XML tree
   #
   def self.buildXMLReply(replyName, result, msg, &block)
-    root = REXML::Element.new("#{replyName}")
+	root = REXML::Element.new("#{replyName}")
     if result == :Error
       addXMLElement(root, "ERROR", "Error when accessing the Inventory Database")
     elsif result.nil? or result == [nil] or result == [] or result.empty?
