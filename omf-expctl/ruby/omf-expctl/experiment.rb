@@ -287,7 +287,6 @@ class Experiment
   # Start the Experiment
   #
   def Experiment.start
-   
    # ACCOMADATE CONFINE
    if Experiment.prepare?
 	return
@@ -295,16 +294,17 @@ class Experiment
 
     @@is_running = true
     TraceState.experiment(:id, @@expID)
-	
     # If -r flag was set on the command line
     # Reset the nodes before starting the experiment if -r flag was set
     if NodeHandler.NODE_RESET
       MObject.info("Experiment", "Resetting resources which are already ON")
       OMF::EC::CmdContext.instance.allGroups.powerReset
     end
-    MObject.info("Experiment", "Switching ON resources which are OFF")
-    OMF::EC::CmdContext.instance.allGroups.powerOn
 
+   # CONFINE - Comment the next two lines, because not necessary for CONFINE?
+   # MObject.info("Experiment", "Switching ON resources which are OFF")
+   # OMF::EC::CmdContext.instance.allGroups.powerOn
+   
     # If this is a disconnected experiment, purge all Events defined on this 
     # EC for this experiment (the slave ECs will be responsible for acting
     # on the experiment defined events). Then add a new event to wait for all
@@ -326,7 +326,6 @@ class Experiment
       onEvent(:EXPERIMENT_DONE) { |node| Experiment.close }
       ECCommunicator.instance.allow_retry
     end
-
     # Check that we do have some resources, if not we quit
     if Topology.empty?
       MObject.info('Experiment', 'All Topologies are empty! No resources '+
@@ -336,7 +335,6 @@ class Experiment
  
     # Now we can Enroll the nodes!
     OMF::EC::CmdContext.instance.allGroups.enroll
-
     # If this is a disconnected experiment, inform the resources about it
     if @@disconnectionAllowed
      OMF::EC::CmdContext.instance.allGroups.set_disconnection
@@ -373,6 +371,7 @@ class Experiment
   # to exit
   #
   def Experiment.close
+    puts "Experiment is closed???"
     @@is_running = false
     NodeHandler.exit(true)
   end
